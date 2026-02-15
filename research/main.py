@@ -9,7 +9,7 @@ from matplotlib.animation import FuncAnimation
 # ======================
 # 1. Load audio
 # ======================
-audio_path = "research/sounds/i colori dell_acciaio.mp3"  # <-- change to your file
+audio_path = "research/sounds/il risveglio.mp3"  # <-- change to your file
 y, sr = librosa.load(audio_path, sr=None, mono=True)
 
 duration = len(y) / sr
