@@ -12,20 +12,38 @@ import librosa.onset
 import sounddevice as sd
 from matplotlib.animation import FuncAnimation
 
+# Good ones
+# - il risveglio / 0.8
+# - il laminatore / 0.78
+# - i colori dell_acciaio / 0.7
+
 # ======================
 # Config (from notebook)
 # ======================
 AUDIO_FILE = os.path.join(
-    os.path.dirname(__file__), "sounds", "il risveglio.mp3"
+    os.path.dirname(__file__), "sounds", "Forno in fusione.mp3"
 )
-SENSITIVITY = 0.91
+SENSITIVITY = 0.7
 OUTPUT_CSV = os.path.join(
     os.path.dirname(__file__), "transients.csv"
 )
 
 
+def _local_maxima_1d(x: np.ndarray) -> np.ndarray:
+    """Indices where x is strictly greater than both neighbors (interior only)."""
+    if len(x) < 3:
+        return np.array([], dtype=int)
+    left = x[1:-1] > x[:-2]
+    right = x[1:-1] > x[2:]
+    return np.nonzero(left & right)[0] + 1
+
+
 def detect_transients(audio_path: str, sensitivity: float = 0.5):
-    """Same logic as tranDec.ipynb: load audio, onset envelope, threshold."""
+    """Load audio, onset envelope; detect every local maximum above threshold.
+    Unlike librosa's onset_detect (which uses wait/delta and can skip high
+    peaks in dense regions), we mark every peak above threshold so the graph
+    is consistent: high peaks are never ignored in favour of lower ones.
+    """
     y, sr = librosa.load(audio_path, sr=None, mono=True)
     duration = librosa.get_duration(y=y, sr=sr)
 
@@ -34,21 +52,11 @@ def detect_transients(audio_path: str, sensitivity: float = 0.5):
     onset_env_norm = onset_env / (onset_env.max() + 1e-10)
 
     threshold = 1.0 - np.clip(sensitivity, 0.0, 1.0)
-    delta = max(0.01, 0.07 * (1.0 - sensitivity))
-    wait = max(1, int(0.05 * sr / hop_length))
 
-    onset_frames = librosa.onset.onset_detect(
-        onset_envelope=onset_env,
-        sr=sr,
-        hop_length=hop_length,
-        delta=delta,
-        wait=wait,
-        units="frames",
-    )
-
-    peak_values = onset_env_norm[onset_frames]
-    mask = peak_values >= threshold
-    onset_frames = onset_frames[mask]
+    # Every local maximum in the envelope above threshold → one transient
+    peak_frames = _local_maxima_1d(onset_env_norm)
+    mask = onset_env_norm[peak_frames] >= threshold
+    onset_frames = peak_frames[mask]
 
     onset_times = librosa.frames_to_time(
         onset_frames, sr=sr, hop_length=hop_length
