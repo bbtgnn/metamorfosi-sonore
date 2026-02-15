@@ -13,17 +13,20 @@ import sounddevice as sd
 from matplotlib.animation import FuncAnimation
 
 # Good ones
-# - il risveglio / 0.8
-# - il laminatore / 0.78
 # - i colori dell_acciaio / 0.7
+# - I suoni della notte / 0.64 / divide in groups by distance
+# - il laminatore / 0.78
+# - il risveglio / 0.8
+# - il tornitore / 0.83 / there is a loop, find indices
+
 
 # ======================
 # Config (from notebook)
 # ======================
 AUDIO_FILE = os.path.join(
-    os.path.dirname(__file__), "sounds", "Forno in fusione.mp3"
+    os.path.dirname(__file__), "sounds", "operaio ignoto.mp3"
 )
-SENSITIVITY = 0.7
+SENSITIVITY = 0.6
 OUTPUT_CSV = os.path.join(
     os.path.dirname(__file__), "transients.csv"
 )
@@ -81,6 +84,16 @@ print(f"Durata: {duration:.2f} s")
 print(f"Transienti rilevati: {len(onset_times)}")
 
 # ======================
+# Spectral centroid (for first graph overlay)
+# ======================
+centroid = librosa.feature.spectral_centroid(
+    y=y, sr=sr, hop_length=hop_length
+)[0]
+centroid_times = librosa.frames_to_time(
+    np.arange(len(centroid)), sr=sr, hop_length=hop_length
+)
+
+# ======================
 # Plot (exact visualization from notebook)
 # ======================
 fig, axes = plt.subplots(2, 1, figsize=(16, 8), sharex=True)
@@ -89,8 +102,14 @@ time_axis = np.linspace(0, duration, num=len(y))
 axes[0].plot(time_axis, y, linewidth=0.3, color="#3370cc")
 for t in onset_times:
     axes[0].axvline(x=t, color="red", alpha=0.6, linewidth=0.8)
+ax0_twin = axes[0].twinx()
+ax0_twin.plot(
+    centroid_times, centroid, color="lime", linewidth=1.2, label="Spectral centroid"
+)
+ax0_twin.set_ylabel("Centroide spettrale (Hz)", color="lime")
+ax0_twin.tick_params(axis="y", labelcolor="lime")
 axes[0].set_ylabel("Ampiezza")
-axes[0].set_title("Forma d'onda + transienti rilevati")
+axes[0].set_title("Forma d'onda + transienti rilevati + centroide spettrale")
 
 env_time = librosa.frames_to_time(
     np.arange(len(onset_env_norm)), sr=sr, hop_length=hop_length
