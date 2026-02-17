@@ -12,9 +12,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Bun
-        uses: actions/setup-node@v4
-        with:
-          cache: bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
         run: bun i
