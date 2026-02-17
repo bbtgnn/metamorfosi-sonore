@@ -4,7 +4,7 @@
 
 <div class="space-y-3 p-3">
 	<a href={resolve('/posters/poster-1')}>Poster 1</a>
-	<a href={resolve('/ar-test')}>Poster 2</a>
+	<a href={resolve('/ar-test')}>AR Test</a>
 </div>
 
 <style lang="postcss">
