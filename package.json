@@ -29,6 +29,7 @@
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.1.18",
 		"@types/node": "^22",
+		"@types/three": "^0.160.0",
 		"@vitest/browser-playwright": "^4.0.18",
 		"bits-ui": "^2.14.4",
 		"clsx": "^2.1.1",
@@ -56,7 +57,9 @@
 	"dependencies": {
 		"animejs": "^4.3.5",
 		"gsap": "^3.14.2",
+		"mind-ar": "^1.2.5",
 		"p5": "^2.2.0",
+		"three": "^0.160.0",
 		"tone": "^15.1.22"
 	}
 }
