@@ -18,18 +18,28 @@ from matplotlib.animation import FuncAnimation
 # - il laminatore / 0.78
 # - il risveglio / 0.8
 # - il tornitore / 0.83 / there is a loop, find indices
+# - operaio ignoto / 0.6
 
+config: list[tuple[str, float]] = [
+    ("i colori dell_acciaio", 0.87),
+    ("I suoni della notte", 0.64),
+    ("il laminatore", 0.78),
+    ("il risveglio", 0.8),
+    ("il tornitore", 0.83),
+    ("operaio ignoto", 0.6),
+]
+
+current_config = 0
+current_config_name, current_config_sensitivity = config[current_config]
+input_file = current_config_name + ".mp3"
+output_file = current_config_name + ".transients.csv"
 
 # ======================
 # Config (from notebook)
 # ======================
-AUDIO_FILE = os.path.join(
-    os.path.dirname(__file__), "sounds", "operaio ignoto.mp3"
-)
-SENSITIVITY = 0.6
-OUTPUT_CSV = os.path.join(
-    os.path.dirname(__file__), "transients.csv"
-)
+AUDIO_FILE = os.path.join(os.path.dirname(__file__), "sounds", input_file)
+SENSITIVITY = current_config_sensitivity
+OUTPUT_CSV = os.path.join(os.path.dirname(__file__), "sounds", output_file)
 
 
 def _local_maxima_1d(x: np.ndarray) -> np.ndarray:
@@ -100,8 +110,12 @@ fig, axes = plt.subplots(2, 1, figsize=(16, 8), sharex=True)
 
 time_axis = np.linspace(0, duration, num=len(y))
 axes[0].plot(time_axis, y, linewidth=0.3, color="#3370cc")
-for t in onset_times:
+ylim0 = axes[0].get_ylim()
+for i, t in enumerate(onset_times):
     axes[0].axvline(x=t, color="red", alpha=0.6, linewidth=0.8)
+    axes[0].text(t, ylim0[1] * 0.98, str(i + 1), fontsize=6,
+                 ha="center", va="top", color="red")
+axes[0].set_ylim(ylim0)
 ax0_twin = axes[0].twinx()
 ax0_twin.plot(
     centroid_times, centroid, color="lime", linewidth=1.2, label="Spectral centroid"
@@ -116,8 +130,10 @@ env_time = librosa.frames_to_time(
 )
 axes[1].plot(env_time, onset_env_norm, linewidth=0.6, color="#3370cc")
 axes[1].set_ylim(0, 1)
-for t in onset_times:
+for i, t in enumerate(onset_times):
     axes[1].axvline(x=t, color="red", alpha=0.6, linewidth=0.8)
+    axes[1].text(t, 0.98, str(i + 1), fontsize=6,
+                 ha="center", va="top", color="red")
 axes[1].set_ylabel("Onset strength")
 axes[1].set_xlabel("Tempo (s)")
 axes[1].set_title("Onset envelope + transienti rilevati (0–1)")
