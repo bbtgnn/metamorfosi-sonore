@@ -20,17 +20,18 @@ from matplotlib.animation import FuncAnimation
 # - il tornitore / 0.83 / there is a loop, find indices
 # - operaio ignoto / 0.6
 
-config: list[tuple[str, float]] = [
-    ("i colori dell_acciaio", 0.87),
-    ("I suoni della notte", 0.64),
-    ("il laminatore", 0.78),
-    ("il risveglio", 0.8),
-    ("il tornitore", 0.83),
-    ("operaio ignoto", 0.6),
+config: list[tuple[str, float, float]] = [
+    ("i colori dell_acciaio", 0.9, 0.1),
+    ("I suoni della notte", 0.62, 0.1),
+    ("il laminatore", 0.78, 0.1),
+    ("il risveglio", 0.8, 0.1),
+    ("il tornitore", 0.83, 0.3),
+    ("operaio ignoto", 0.6, 0.1),
 ]
 
-current_config = 0
-current_config_name, current_config_sensitivity = config[current_config]
+current_config = 5
+current_config_name, current_config_sensitivity, current_config_min_peak_interval_s = config[
+    current_config]
 input_file = current_config_name + ".mp3"
 output_file = current_config_name + ".transients.csv"
 
@@ -39,6 +40,8 @@ output_file = current_config_name + ".transients.csv"
 # ======================
 AUDIO_FILE = os.path.join(os.path.dirname(__file__), "sounds", input_file)
 SENSITIVITY = current_config_sensitivity
+# Minimum time (seconds) between consecutive peaks; closer peaks are merged (stronger kept). 0 = disabled.
+MIN_PEAK_INTERVAL_S = current_config_min_peak_interval_s
 OUTPUT_CSV = os.path.join(os.path.dirname(__file__), "sounds", output_file)
 
 
@@ -81,12 +84,34 @@ def detect_transients(audio_path: str, sensitivity: float = 0.5):
     )
 
 
+def filter_close_peaks(
+    onset_times: np.ndarray,
+    onset_strengths: np.ndarray,
+    min_interval_s: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Remove consecutive peaks closer than min_interval_s; when merging, keep the stronger peak."""
+    if min_interval_s <= 0 or len(onset_times) <= 1:
+        return onset_times, onset_strengths
+    keep = [0]
+    for i in range(1, len(onset_times)):
+        if onset_times[i] - onset_times[keep[-1]] >= min_interval_s:
+            keep.append(i)
+        else:
+            if onset_strengths[i] > onset_strengths[keep[-1]]:
+                keep[-1] = i
+    return onset_times[keep], onset_strengths[keep]
+
+
 # ======================
 # Run detection
 # ======================
 (
     y, sr, duration, onset_env_norm, onset_times, onset_strengths, hop_length
 ) = detect_transients(AUDIO_FILE, SENSITIVITY)
+
+onset_times, onset_strengths = filter_close_peaks(
+    onset_times, onset_strengths, MIN_PEAK_INTERVAL_S
+)
 
 print(f"File: {AUDIO_FILE}")
 print(f"Sample rate: {sr} Hz")
