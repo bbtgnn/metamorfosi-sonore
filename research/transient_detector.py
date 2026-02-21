@@ -29,7 +29,7 @@ config: list[tuple[str, float, float]] = [
     ("operaio ignoto", 0.6, 0.1),
 ]
 
-current_config = 5
+current_config = 4
 current_config_name, current_config_sensitivity, current_config_min_peak_interval_s = config[
     current_config]
 input_file = current_config_name + ".mp3"
