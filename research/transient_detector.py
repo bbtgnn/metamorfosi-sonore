@@ -38,11 +38,11 @@ output_file = current_config_name + ".transients.csv"
 # ======================
 # Config (from notebook)
 # ======================
-AUDIO_FILE = os.path.join(os.path.dirname(__file__), "sounds", input_file)
+AUDIO_FILE = os.path.join(os.path.dirname(__file__), "data", input_file)
 SENSITIVITY = current_config_sensitivity
 # Minimum time (seconds) between consecutive peaks; closer peaks are merged (stronger kept). 0 = disabled.
 MIN_PEAK_INTERVAL_S = current_config_min_peak_interval_s
-OUTPUT_CSV = os.path.join(os.path.dirname(__file__), "sounds", output_file)
+OUTPUT_CSV = os.path.join(os.path.dirname(__file__), "data", output_file)
 
 
 def _local_maxima_1d(x: np.ndarray) -> np.ndarray:
