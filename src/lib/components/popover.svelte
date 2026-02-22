@@ -1,6 +1,7 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	import * as Popover from '$lib/shadcn/ui/popover/index.js';
-	import type { ComponentProps, Snippet } from 'svelte';
 
 	type Props = {
 		trigger: Snippet<[{ props: Record<string, unknown> }]>;
