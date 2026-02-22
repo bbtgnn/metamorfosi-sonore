@@ -7,6 +7,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	server: { fs: { allow: ['research'] } },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
