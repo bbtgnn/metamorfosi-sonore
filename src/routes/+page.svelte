@@ -3,7 +3,7 @@
 </script>
 
 <div class="space-y-3 p-3">
-	<a href={resolve('/posters/poster-1')}>Poster 1</a>
+	<a href={resolve('/posters/i-colori-dell-acciaio')}>I colori dell'acciaio</a>
 	<a href={resolve('/ar-test')}>AR Test</a>
 </div>
 
