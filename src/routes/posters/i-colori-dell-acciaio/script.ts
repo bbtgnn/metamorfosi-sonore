@@ -1,17 +1,13 @@
 import paper from 'paper';
-import * as Tone from 'tone';
+
+import type { DecayTime } from './decay-time';
 
 import svgPath from './paths.svg?url';
 
-export interface InitProjectOptions {
-	/** Called at each transient time (once per loop). */
-	onTransient?: (index: number, time: number) => void;
-}
-
 export async function initProject(
 	canvas: HTMLCanvasElement,
-	player: Tone.Player,
-	_options: InitProjectOptions = {}
+	decayRed: DecayTime,
+	decayBlue: DecayTime
 ) {
 	// _options.onTransient is used by the page to fire at each transient time.
 	// Script can listen for 'transient' custom events: window.addEventListener('transient', (e) => { e.detail.index, e.detail.time })
@@ -28,7 +24,7 @@ export async function initProject(
 	imported.scale(0.5, [0, 0]);
 
 	const paths = getPathsFromItem(imported);
-	project.activeLayer.addChildren(paths);
+	// project.activeLayer.addChildren(paths);
 
 	const redInner = getPathByName(paths, 'red-inner');
 	const redOuter = getPathByName(paths, 'red-outer');
@@ -45,24 +41,22 @@ export async function initProject(
 		redClones.push(redInner.clone());
 		blueClones.push(blueInner.clone());
 	}
+	project.activeLayer.addChildren(redClones);
+	project.activeLayer.addChildren(blueClones);
 
-	const minCount = 20;
+	// const minCount = 20;
 	project.view.onFrame = () => {
-		const duration = player.buffer?.duration ?? 0;
-		const currentLoopTime =
-			duration > 0 ? Tone.getTransport().seconds % duration : 0;
-		const currentCount = Math.round(
-			(currentLoopTime / duration) * (cloneCount - minCount) + minCount
-		);
-		for (let i = 0; i < currentCount; i++) {
-			redClones[i].opacity = 1;
-			blueClones[i].opacity = 1;
-			redClones[i].interpolate(redInner, redOuter, i / currentCount);
-			blueClones[i].interpolate(blueInner, blueOuter, i / currentCount);
-		}
-		for (let i = currentCount; i < cloneCount; i++) {
-			redClones[i].opacity = 0;
-			blueClones[i].opacity = 0;
+		decayRed.update();
+		decayBlue.update();
+		// const duration = player.buffer?.duration ?? 0;
+		// const currentLoopTime =
+		// 	duration > 0 ? Tone.getTransport().seconds % duration : 0;
+		// const currentCount = Math.round(
+		// 	(currentLoopTime / duration) * (cloneCount - minCount) + minCount
+		// );
+		for (let i = 0; i < cloneCount; i++) {
+			redClones[i].interpolate(redInner, redOuter, (i / cloneCount) * decayRed.amount);
+			blueClones[i].interpolate(blueInner, blueOuter, (i / cloneCount) * decayBlue.amount);
 		}
 	};
 }

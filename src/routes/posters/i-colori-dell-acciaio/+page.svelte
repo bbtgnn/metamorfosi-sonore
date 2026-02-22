@@ -5,8 +5,13 @@
 	import * as Tone from 'tone';
 
 	import { setupTransport } from './audio';
+	import { DecayTime } from './decay-time';
+	import { initProject } from './script';
 
 	//
+
+	const decayRed = new DecayTime({ delta: 0.002 });
+	const decayBlue = new DecayTime({ delta: 0.002 });
 
 	const player = new Tone.Player({ loop: true });
 	player.load(audioUrl).then(() => {
@@ -24,11 +29,21 @@
 			} else {
 				setupTransport(transport, player);
 
-				transients.map((t) => {
-					transport.schedule(() => {
-						console.log(t);
-					}, t.timestamp_s);
-				});
+				transients
+					.filter((t) => t.rolloff_band === 'mid')
+					.forEach((t) => {
+						transport.schedule(() => {
+							decayBlue.reset();
+						}, t.timestamp_s);
+					});
+
+				transients
+					.filter((t) => t.rolloff_band === 'low' || t.rolloff_band === 'high')
+					.forEach((t) => {
+						transport.schedule(() => {
+							decayRed.reset();
+						}, t.timestamp_s);
+					});
 
 				ready = true;
 				transport.start();
@@ -42,14 +57,14 @@
 	}
 </script>
 
-<!-- <canvas
+<canvas
 	width="600"
 	height="800"
 	class="bg-black"
 	{@attach (c) => {
-		initProject(c, player, { onTransient });
+		initProject(c, decayRed, decayBlue);
 	}}
-></canvas> -->
+></canvas>
 
 <Button onclick={handlePlay}>Play</Button>
 <Button onclick={handleStop}>Stop</Button>
