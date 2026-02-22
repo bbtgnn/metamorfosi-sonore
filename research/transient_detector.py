@@ -29,7 +29,7 @@ config: list[tuple[str, float, float]] = [
     ("operaio ignoto", 0.6, 0.1),
 ]
 
-current_config = 4
+current_config = 5
 current_config_name, current_config_sensitivity, current_config_min_peak_interval_s = config[
     current_config]
 input_file = current_config_name + ".mp3"
@@ -119,13 +119,31 @@ print(f"Durata: {duration:.2f} s")
 print(f"Transienti rilevati: {len(onset_times)}")
 
 # ======================
-# Spectral centroid (for first graph overlay)
+# Spectral features (centroid, rolloff) and pitch (F0)
 # ======================
 centroid = librosa.feature.spectral_centroid(
     y=y, sr=sr, hop_length=hop_length
 )[0]
+# Rolloff: frequency below which 85% of spectral energy lies (brightness)
+rolloff = librosa.feature.spectral_rolloff(
+    y=y, sr=sr, hop_length=hop_length, roll_percent=0.85
+)[0]
+# Pitch (fundamental frequency F0) per frame; 0 where no clear pitch
+f0, *_ = librosa.pyin(
+    y,
+    fmin=float(librosa.note_to_hz("C2")),
+    fmax=float(librosa.note_to_hz("C7")),
+    sr=sr,
+    hop_length=hop_length,
+)
+f0 = np.nan_to_num(f0, nan=0.0, posinf=0.0, neginf=0.0)
+# Align length (pyin can return one frame less)
+n_frames = min(len(centroid), len(rolloff), len(f0))
+centroid = centroid[:n_frames]
+rolloff = rolloff[:n_frames]
+f0 = f0[:n_frames]
 centroid_times = librosa.frames_to_time(
-    np.arange(len(centroid)), sr=sr, hop_length=hop_length
+    np.arange(n_frames), sr=sr, hop_length=hop_length
 )
 
 # ======================
@@ -170,6 +188,41 @@ playhead1 = axes[1].axvline(0, color="white", linewidth=2)
 plt.tight_layout()
 
 # ======================
+# Peak descriptors at each onset (interpolate from frame-level features)
+# ======================
+peak_frequencies_hz = np.interp(onset_times, centroid_times, centroid)
+peak_rolloff_hz = np.interp(onset_times, centroid_times, rolloff)
+peak_pitch_hz = np.interp(onset_times, centroid_times, f0)
+
+# Classify as low / mid / high (Hz): low <= 250, mid 250–2000, high > 2000
+
+
+def frequency_band(f_hz: float) -> str:
+    if f_hz <= 250:
+        return "low"
+    if f_hz <= 2000:
+        return "mid"
+    return "high"
+
+
+# Pitch band: same bounds; "unvoiced" when no clear pitch (F0 ≈ 0)
+def pitch_band(f0_hz: float) -> str:
+    if f0_hz < 20:
+        return "unvoiced"
+    return frequency_band(f0_hz)
+
+
+frequency_bands = np.array([frequency_band(f) for f in peak_frequencies_hz])
+rolloff_bands = np.array([frequency_band(f) for f in peak_rolloff_hz])
+pitch_bands = np.array([pitch_band(f) for f in peak_pitch_hz])
+
+# Wavelength λ = c / f (c = speed of sound in air ≈ 343 m/s)
+SPEED_OF_SOUND_M_S = 343.0
+peak_freq_safe = np.maximum(
+    peak_frequencies_hz, 1e-6)  # avoid division by zero
+wavelength_m = SPEED_OF_SOUND_M_S / peak_freq_safe
+
+# ======================
 # CSV export (from notebook)
 # ======================
 df = pd.DataFrame({
@@ -177,6 +230,17 @@ df = pd.DataFrame({
     "timestamp_s": np.round(onset_times, 6),
     "strength": onset_strengths,
     "strength_rounded": np.round(onset_strengths, 2),
+    "frequency_hz": peak_frequencies_hz,
+    "frequency_hz_rounded": np.round(peak_frequencies_hz, 1),
+    "frequency_band": frequency_bands,
+    "wavelength_m": wavelength_m,
+    "wavelength_m_rounded": np.round(wavelength_m, 4),
+    "rolloff_hz": peak_rolloff_hz,
+    "rolloff_hz_rounded": np.round(peak_rolloff_hz, 1),
+    "rolloff_band": rolloff_bands,
+    "pitch_hz": peak_pitch_hz,
+    "pitch_hz_rounded": np.round(peak_pitch_hz, 1),
+    "pitch_band": pitch_bands,
 })
 df.to_csv(OUTPUT_CSV, index=False)
 print(f"CSV salvato in: {os.path.abspath(OUTPUT_CSV)}")
