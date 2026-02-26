@@ -75,18 +75,26 @@
 		// const interpolation = new Interpolation(sx, dx, 80);
 		// project.activeLayer.addChildren(interpolation.paths);
 
-		let ps: paper.Path[] = [];
-		let amount = 0.1;
-
-		let p = getPartialPath(sx, 0, amount);
+		// let p = getPartialPath(sx, amount - 0.1, amount);
+		let old = sx;
+		let amount = 1;
 		// project.activeLayer.addChild(p);
 
+		const start = new paper.Path.Circle([0, 0], 10);
+		start.fillColor = new paper.Color(1, 0, 0);
+		const end = new paper.Path.Circle([0, 0], 10);
+		end.fillColor = new paper.Color(0, 1, 0);
+
 		project.view.onFrame = () => {
-			ps.forEach((p) => p.remove());
-			p = getPartialPath(sx, amount - 0.1, amount);
-			project.activeLayer.addChild(p);
+			const path = old.clone();
+			old.remove();
+			const startPos = path.getPointAt((path.length * (amount - 0.1)) % path.length);
+			start.position = startPos;
+			const endPos = path.getPointAt((path.length * amount) % path.length);
+			end.position = endPos;
+			// path.splitAt(path.length * amount);
+			old = path;
 			amount += 0.001;
-			ps.push(p);
 		};
 	}
 
