@@ -9,9 +9,6 @@ export async function initProject(
 	decayRed: DecayTime,
 	decayBlue: DecayTime
 ) {
-	// _options.onTransient is used by the page to fire at each transient time.
-	// Script can listen for 'transient' custom events: window.addEventListener('transient', (e) => { e.detail.index, e.detail.time })
-
 	const project = new paper.Project(canvas);
 
 	const rect = new paper.Path.Rectangle({
