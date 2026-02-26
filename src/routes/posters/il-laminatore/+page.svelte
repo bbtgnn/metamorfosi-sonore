@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { DecayTime } from '$lib/decay-time';
-	import { getPathByName, getPathsFromItem, loadSvg } from '$lib/paper-utils';
+	import { getPathByName, getPathsFromItem, Interpolation, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import { Button } from '$lib/shadcn/ui/button';
-	import audioUrl from '$research/i colori dell_acciaio.mp3?url';
-	import transients from '$research/i colori dell_acciaio.transients.json';
+	import audioUrl from '$research/il laminatore.mp3';
+	import notes from '$research/il laminatore.notes.json';
+	import transients from '$research/il laminatore.transients.json';
 	import paper from 'paper';
 
 	import svgPath from './paths.svg?url';
@@ -32,6 +33,10 @@
 			});
 		});
 
+	notes.forEach((e) => {
+		console.log(e);
+	});
+
 	const player = new PlayerWithEvents({
 		audioUrl,
 		loop: true,
@@ -44,33 +49,29 @@
 		const imported = await loadSvg(project, svgPath);
 		imported.scale(0.4, [0, 0]);
 
+		// project.activeLayer.addChild(imported);
+
 		const paths = getPathsFromItem(imported);
-		const redInner = getPathByName(paths, 'red-inner');
-		const redOuter = getPathByName(paths, 'red-outer');
-		const blueInner = getPathByName(paths, 'blue-inner');
-		const blueOuter = getPathByName(paths, 'blue-outer');
-		if (!redInner || !redOuter || !blueInner || !blueOuter) {
-			throw new Error('Red or blue inner or outer not found');
+		const sx = getPathByName(paths, 'sx');
+		const dx = getPathByName(paths, 'dx');
+		if (!sx || !dx) {
+			throw new Error('sx or dx not found');
 		}
 
-		const cloneCount = 80;
-		const redClones: paper.Path[] = [];
-		const blueClones: paper.Path[] = [];
-		for (let i = 0; i < cloneCount; i++) {
-			redClones.push(redInner.clone());
-			blueClones.push(blueInner.clone());
-		}
-		project.activeLayer.addChildren(redClones);
-		project.activeLayer.addChildren(blueClones);
+		sx.strokeWidth = dx.strokeWidth = 1;
+		sx.strokeColor = dx.strokeColor;
 
-		project.view.onFrame = () => {
-			decayRed.update();
-			decayBlue.update();
-			for (let i = 0; i < cloneCount; i++) {
-				redClones[i].interpolate(redInner, redOuter, (i / cloneCount) * decayRed.amount);
-				blueClones[i].interpolate(blueInner, blueOuter, (i / cloneCount) * decayBlue.amount);
-			}
-		};
+		dx.reorient(true, false);
+		project.activeLayer.addChild(dx);
+
+		const interpolation = new Interpolation(sx, dx, 80);
+		project.activeLayer.addChildren(interpolation.paths);
+
+		// project.view.onFrame = () => {
+		// 	decayRed.update();
+		// 	decayBlue.update();
+		// 	interpolation.interpolate(decayRed.amount);
+		// };
 	}
 </script>
 
