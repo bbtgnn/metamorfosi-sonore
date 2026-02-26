@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { DecayTime } from '$lib/decay-time';
-	import { getPathByName, getPathsFromItem, loadSvg } from '$lib/paper-utils';
+	import { getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import { Button } from '$lib/shadcn/ui/button';
 	import audioUrl from '$research/il laminatore.mp3';
@@ -52,8 +52,8 @@
 		// project.activeLayer.addChild(imported);
 
 		const paths = getPathsFromItem(imported);
-		const sx = getPathByName(paths, 'sx');
-		const dx = getPathByName(paths, 'dx');
+		const sx = getPathByNameOrThrow(paths, 'sx');
+		const dx = getPathByNameOrThrow(paths, 'dx');
 		if (!sx || !dx) {
 			throw new Error('sx or dx not found');
 		}
@@ -77,7 +77,8 @@
 
 		// let p = getPartialPath(sx, amount - 0.1, amount);
 		let old = sx;
-		let amount = 1;
+		// project.activeLayer.addChild(old);
+		let amount = 0.5;
 		// project.activeLayer.addChild(p);
 
 		const start = new paper.Path.Circle([0, 0], 10);
@@ -87,13 +88,17 @@
 
 		project.view.onFrame = () => {
 			const path = old.clone();
-			old.remove();
-			const startPos = path.getPointAt((path.length * (amount - 0.1)) % path.length);
+			project.activeLayer.addChild(path);
+			const startLength = path.length * (amount - 0.1);
+			const startPos = path.getPointAt(startLength % path.length);
 			start.position = startPos;
-			const endPos = path.getPointAt((path.length * amount) % path.length);
+			const endLength = path.length * amount;
+			const endPos = path.getPointAt(endLength % path.length);
 			end.position = endPos;
-			// path.splitAt(path.length * amount);
-			old = path;
+			path.splitAt(endLength);
+			path.splitAt(endLength - startLength);
+			// old = path;
+			path.remove();
 			amount += 0.001;
 		};
 	}

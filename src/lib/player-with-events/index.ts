@@ -11,6 +11,8 @@ type Props = {
 	loop?: boolean;
 	audioUrl: string;
 	events: PlayerEvent[];
+	onStart?: () => void;
+	onStop?: () => void;
 };
 
 export class PlayerWithEvents {
@@ -62,6 +64,11 @@ export class PlayerWithEvents {
 
 		transport.on('stop', () => {
 			this.player.stop();
+			this.props.onStop?.();
+		});
+
+		transport.on('start', () => {
+			this.props.onStart?.();
 		});
 
 		this.props.events.forEach((event) => {

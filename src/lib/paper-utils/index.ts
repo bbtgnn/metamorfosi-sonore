@@ -23,8 +23,12 @@ export function getPathsFromItem(root: paper.Item): paper.Path[] {
 	return paths;
 }
 
-export function getPathByName(paths: paper.Path[], name: string): paper.Path | undefined {
-	return paths.find((p) => p.name == name);
+export function getPathByNameOrThrow(paths: paper.Path[], name: string): paper.Path {
+	const path = paths.find((p) => p.name == name);
+	if (!path) {
+		throw new Error(`Path with name ${name} not found`);
+	}
+	return path;
 }
 
 export async function loadSvg(project: paper.Project, svgPath: string): Promise<paper.Item> {
