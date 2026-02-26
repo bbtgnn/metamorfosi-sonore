@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { DecayTime } from '$lib/decay-time';
-	import { getPathByName, getPathsFromItem, Interpolation, loadSvg } from '$lib/paper-utils';
+	import { getPathByName, getPathsFromItem, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import { Button } from '$lib/shadcn/ui/button';
 	import audioUrl from '$research/il laminatore.mp3';
@@ -34,7 +34,7 @@
 		});
 
 	notes.forEach((e) => {
-		console.log(e);
+		// console.log(e);
 	});
 
 	const player = new PlayerWithEvents({
@@ -58,20 +58,45 @@
 			throw new Error('sx or dx not found');
 		}
 
-		sx.strokeWidth = dx.strokeWidth = 1;
-		sx.strokeColor = dx.strokeColor;
+		// project.activeLayer.addChild(sx);
+		const result = getPartialPath(sx, 0, 0.4);
+		// project.activeLayer.addChild(result);
+		// project.activeLayer.addChild(beforeStart);
+		// project.activeLayer.addChild(copy);
+		// // project.activeLayer.addChild(partial2);
+		// project.activeLayer.addChild(rest);
 
-		dx.reorient(true, false);
-		project.activeLayer.addChild(dx);
+		// sx.strokeWidth = dx.strokeWidth = 1;
+		// sx.strokeColor = dx.strokeColor;
 
-		const interpolation = new Interpolation(sx, dx, 80);
-		project.activeLayer.addChildren(interpolation.paths);
+		// dx.reorient(true, false);
+		// project.activeLayer.addChild(dx);
 
-		// project.view.onFrame = () => {
-		// 	decayRed.update();
-		// 	decayBlue.update();
-		// 	interpolation.interpolate(decayRed.amount);
-		// };
+		// const interpolation = new Interpolation(sx, dx, 80);
+		// project.activeLayer.addChildren(interpolation.paths);
+
+		let ps: paper.Path[] = [];
+		let amount = 0.1;
+
+		let p = getPartialPath(sx, 0, amount);
+		// project.activeLayer.addChild(p);
+
+		project.view.onFrame = () => {
+			ps.forEach((p) => p.remove());
+			p = getPartialPath(sx, amount - 0.1, amount);
+			project.activeLayer.addChild(p);
+			amount += 0.001;
+			ps.push(p);
+		};
+	}
+
+	function getPartialPath(path: paper.Path, start: number, end: number) {
+		if (start > end) start = end - 0.1;
+		const result = path.clone();
+		const startLength = path.length * start;
+		result.splitAt(startLength);
+		result.splitAt(path.length * end - startLength);
+		return result;
 	}
 </script>
 
