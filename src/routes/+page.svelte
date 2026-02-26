@@ -6,6 +6,7 @@
 	<a href={resolve('/posters/i-colori-dell-acciaio')}>I colori dell'acciaio</a>
 	<a href={resolve('/posters/il-laminatore')}>Il laminatore</a>
 	<a href={resolve('/posters/il-risveglio')}>Il risveglio</a>
+	<a href={resolve('/posters/operaio-ignoto')}>Operaio ignoto</a>
 	<a href={resolve('/ar-test')}>AR Test</a>
 </div>
 

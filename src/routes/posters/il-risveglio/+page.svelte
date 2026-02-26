@@ -15,11 +15,7 @@
 	let project: paper.Project | null = null;
 
 	const gears: Gear[] = [];
-
 	const speeds = [10, 5, 1, 0.1, 0];
-
-	let lastSegmentDuration = transients.at(-1)!.timestamp_s - transients.at(-2)!.timestamp_s;
-	console.log(lastSegmentDuration);
 
 	const events: PlayerEvent[] = [];
 	notes.forEach((n, index) => {
