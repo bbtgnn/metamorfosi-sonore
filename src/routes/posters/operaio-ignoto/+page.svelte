@@ -34,9 +34,8 @@
 		const initalLength = 100;
 		const distance = 30;
 
-		const distanceIncrease = 4;
-		const angleIncrease = 10;
-		const lengthIncrease = 0.1;
+		const angleIncrease = 5;
+		const phi = (1 + Math.sqrt(5)) / 2; // golden ratio for spiral r(θ) = a·φ^(θ/360°)
 
 		const startLine = new paper.Path.Line(
 			[center.x - initalLength / 2, center.y + distance],
@@ -49,10 +48,12 @@
 
 		const branchCopies = 28;
 		for (let i = 0; i < branchCopies; i++) {
+			const angleDeg = angleIncrease * i;
+			const radius = distance * Math.pow(phi, angleDeg / 360);
 			const line = startLine.clone();
-			line.translate([0, distanceIncrease * i]);
-			line.rotate(angleIncrease * i, center);
-			line.scale(1 + lengthIncrease * i, line.bounds.center);
+			line.translate([0, radius - distance]);
+			line.rotate(angleDeg, center);
+			line.scale((radius / distance) * i * 0.1, line.bounds.center);
 			group.addChild(line);
 		}
 
