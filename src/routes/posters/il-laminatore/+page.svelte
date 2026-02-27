@@ -85,19 +85,13 @@
 				})
 		);
 
+		partials.forEach((p) => p.animate(project!));
+
 		project.view.onFrame = () => {
 			partials.forEach((p) => p.animate(project!));
 		};
 
-		await wait(10);
 		project.view.pause();
-
-		// project.view.play();
-		// project.view.pause();
-	}
-
-	function wait(ms: number) {
-		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 </script>
 
