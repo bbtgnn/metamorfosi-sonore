@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { DecayTime } from '$lib/decay-time';
 	import { getPathByNameOrThrow, getPathsFromItem, Interpolation, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import { Button } from '$lib/shadcn/ui/button';
@@ -13,39 +12,54 @@
 
 	//
 
-	const decayRed = new DecayTime({ delta: 0.002 });
-	const decayBlue = new DecayTime({ delta: 0.002 });
+	type Event = 'bzz' | 'clunk' | 'stair';
+	const eventToSpeed: Record<Event, number> = {
+		bzz: 0.001,
+		clunk: 0.0001,
+		stair: 0.002
+	};
 
+	let partials: PartialPath[] = [];
+
+	let project: paper.Project | null = null;
 	const events: PlayerEvent[] = [];
-	transients
-		.filter((t) => t.rolloff_band === 'mid')
-		.forEach((t) => {
-			events.push({
-				fn: () => decayBlue.reset(),
-				timestamp: t.timestamp_s
-			});
-		});
-	transients
-		.filter((t) => t.rolloff_band === 'low' || t.rolloff_band === 'high')
-		.forEach((t) => {
-			events.push({
-				fn: () => decayRed.reset(),
-				timestamp: t.timestamp_s
-			});
-		});
 
-	notes.forEach((e) => {
-		// console.log(e);
+	let lastEvent: Event | null = null;
+	notes.forEach((n) => {
+		const currentEvent = n.event as Event;
+		let baseSpeed = eventToSpeed[n.event as Event];
+		if (lastEvent == currentEvent) {
+			if (currentEvent == 'stair') {
+				baseSpeed += 2 * baseSpeed;
+			} else if (currentEvent == 'clunk') {
+				baseSpeed = 0;
+			}
+		}
+		const transient = transients.find((t) => t.transient_index == n.transient_index);
+		if (!transient) throw new Error(`Transient not found for note ${n.event}`);
+		events.push({
+			fn: () => {
+				partials.forEach((p) => p.setSpeed(baseSpeed));
+			},
+			timestamp: transient.timestamp_s
+		});
+		lastEvent = currentEvent;
 	});
 
 	const player = new PlayerWithEvents({
 		audioUrl,
 		loop: true,
-		events
+		events,
+		onStart: () => {
+			project?.view.play();
+		},
+		onStop: () => {
+			project?.view.pause();
+		}
 	});
 
 	async function initProject(canvas: HTMLCanvasElement) {
-		const project = new paper.Project(canvas);
+		project = new paper.Project(canvas);
 
 		const imported = await loadSvg(project, svgPath);
 		imported.scale(0.4, [0, 0]);
@@ -59,14 +73,23 @@
 		sx.strokeWidth = dx.strokeWidth = 1;
 		sx.strokeColor = dx.strokeColor;
 		dx.reorient(true, false);
-		// project.activeLayer.addChild(dx);
 
-		const interpolation1 = new Interpolation(sx, dx, 80);
-		const partials1 = interpolation1.paths.map((path) => new PartialPath(path));
+		const interpolation = new Interpolation(sx, dx, 80);
+
+		partials = interpolation.paths.map(
+			(path) =>
+				new PartialPath(path, {
+					offset: Math.random() / 6,
+					length: (Math.random() / 3) * 2,
+					speed: Math.random() / 1000
+				})
+		);
 
 		project.view.onFrame = () => {
-			partials1.forEach((p) => p.animate(project));
+			partials.forEach((p) => p.animate(project!));
 		};
+
+		project.view.pause();
 	}
 </script>
 

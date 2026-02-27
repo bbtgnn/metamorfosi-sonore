@@ -1,5 +1,16 @@
 export class PartialPath {
-	constructor(private path: paper.Path) {}
+	private start: number;
+	private length: number;
+	private speed: number;
+
+	constructor(
+		private path: paper.Path,
+		options: { offset?: number; length?: number; speed?: number }
+	) {
+		this.start = options.offset ?? 0;
+		this.length = options.length ?? 0.4;
+		this.speed = options.speed ?? 0.001;
+	}
 
 	make(head: number, length: number) {
 		const result = this.path.clone();
@@ -12,12 +23,14 @@ export class PartialPath {
 	}
 
 	private currentPath: paper.Path | null = null;
-	private start: number = 0;
-	private length: number = 0.4;
 	animate(project: paper.Project) {
 		this.currentPath?.remove();
 		this.currentPath = this.make(this.start, this.length);
 		project.activeLayer.addChild(this.currentPath);
-		this.start += 0.01;
+		this.start += this.speed;
+	}
+
+	setSpeed(speed: number) {
+		this.speed = speed;
 	}
 }
