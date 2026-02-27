@@ -1,5 +1,13 @@
 import paper from 'paper';
 
+export function addBackground(project: paper.Project, color: string) {
+	const background = new paper.Path.Rectangle({
+		size: project.view.size,
+		fillColor: color
+	});
+	project.activeLayer.addChild(background);
+}
+
 export function getPathsFromItem(root: paper.Item): paper.Path[] {
 	const paths: paper.Path[] = [];
 	const stack: paper.Item[] = [root];

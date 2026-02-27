@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
+	import { addBackground, getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/il risveglio.mp3';
 	import notes from '$research/il risveglio.notes.json';
@@ -42,6 +42,7 @@
 
 	async function initProject(canvas: HTMLCanvasElement) {
 		project = new paper.Project(canvas);
+		addBackground(project, 'black');
 
 		const imported = await loadSvg(project, svgPath);
 		imported.scale(0.4, [0, 0]);

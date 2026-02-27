@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { DecayTime } from '$lib/decay-time';
-	import { getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
+	import { addBackground, getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/i colori dell_acciaio.mp3?url';
 	import transients from '$research/i colori dell_acciaio.transients.json';
@@ -48,6 +48,7 @@
 
 	async function initProject(canvas: HTMLCanvasElement) {
 		project = new paper.Project(canvas);
+		addBackground(project, 'black');
 
 		const imported = await loadSvg(project, svgPath);
 		imported.scale(0.4, [0, 0]);
@@ -67,6 +68,14 @@
 		}
 		project.activeLayer.addChildren(redClones);
 		project.activeLayer.addChildren(blueClones);
+
+		// draw first frame with max decay before starting animation
+		decayRed.reset();
+		decayBlue.reset();
+		for (let i = 0; i < cloneCount; i++) {
+			redClones[i].interpolate(redInner, redOuter, (i / cloneCount) * decayRed.amount);
+			blueClones[i].interpolate(blueInner, blueOuter, (i / cloneCount) * decayBlue.amount);
+		}
 
 		project.view.onFrame = () => {
 			decayRed.update();
@@ -89,7 +98,6 @@
 <canvas
 	width="600"
 	height="800"
-	class="bg-black"
 	{@attach (c) => {
 		initProject(c);
 	}}
