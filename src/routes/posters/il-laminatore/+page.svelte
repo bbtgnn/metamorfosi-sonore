@@ -2,6 +2,7 @@
 	import { getPathByNameOrThrow, getPathsFromItem, Interpolation, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import { imageSize } from '$lib/shared';
+	import { onMount } from 'svelte';
 	import audioUrl from '$research/il laminatore.mp3';
 	import notes from '$research/il laminatore.notes.json';
 	import transients from '$research/il laminatore.transients.json';
@@ -10,6 +11,29 @@
 	import { setState } from '../+layout.svelte';
 	import { PartialPath } from './partial-path';
 	import svgPath from './paths.svg?url';
+
+	const canvasPadding = 24;
+	let canvasWidth = imageSize.width;
+	let canvasHeight = imageSize.height;
+
+	function updateCanvasSize() {
+		const availableWidth = window.innerWidth - canvasPadding * 2;
+		const availableHeight = window.innerHeight - canvasPadding * 2;
+		const scale = Math.min(
+			availableWidth / imageSize.width,
+			availableHeight / imageSize.height,
+			1
+		);
+		canvasWidth = imageSize.width * scale;
+		canvasHeight = imageSize.height * scale;
+	}
+
+	onMount(() => {
+		updateCanvasSize();
+		const handler = () => updateCanvasSize();
+		window.addEventListener('resize', handler);
+		return () => window.removeEventListener('resize', handler);
+	});
 
 	//
 
@@ -105,6 +129,7 @@
 	width={imageSize.width}
 	height={imageSize.height}
 	class="bg-black"
+	style={`display: block; margin: ${canvasPadding}px; width: ${canvasWidth}px; height: ${canvasHeight}px;`}
 	{@attach (c) => {
 		initProject(c);
 	}}
