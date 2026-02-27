@@ -40,7 +40,7 @@
 }
 
 .dark {
-	--background: oklch(21.427% 0.00391 285.981);
+	--background: oklch(27.685% 0.00003 271.152);
 	--foreground: oklch(0.984 0.003 247.858);
 	--card: oklch(0.208 0.042 265.755);
 	--card-foreground: oklch(0.984 0.003 247.858);
@@ -125,5 +125,5 @@ button:hover {
 }
 
 canvas {
-	box-shadow: -24px 4px 48px 0px rgb(255 255 255 / 0.05);
+	box-shadow: -24px 4px 48px 0px rgba(0, 0, 0, 0.344);
 }
