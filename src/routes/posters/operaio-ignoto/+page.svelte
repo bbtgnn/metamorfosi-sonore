@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { Canvas } from '$lib/canvas';
+	import { imageSize, resizeCanvas } from '$lib/canvas/utils';
 	import { DecayTime } from '$lib/decay-time';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
-	import { imageSize, resizeCanvas, resizeCanvasAttachment } from '$lib/shared';
 	import audioUrl from '$research/operaio ignoto.mp3';
 	import transients from '$research/operaio ignoto.transients.json';
 	import P5 from 'p5';
@@ -110,11 +111,4 @@
 	}
 </script>
 
-<canvas
-	width={imageSize.width}
-	height={imageSize.height}
-	{@attach (c) => {
-		initProject(c);
-	}}
-	{@attach (c) => resizeCanvasAttachment(c)}
-></canvas>
+<Canvas {initProject} />

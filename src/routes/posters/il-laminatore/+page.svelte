@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { Canvas } from '$lib/canvas';
 	import { getPathByNameOrThrow, getPathsFromItem, Interpolation, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
-	import { imageSize, resizeCanvasAttachment } from '$lib/shared';
 	import audioUrl from '$research/il laminatore.mp3';
 	import notes from '$research/il laminatore.notes.json';
 	import transients from '$research/il laminatore.transients.json';
@@ -101,11 +101,4 @@
 	}
 </script>
 
-<canvas
-	width={imageSize.width}
-	height={imageSize.height}
-	{@attach (c) => {
-		initProject(c);
-	}}
-	{@attach (c) => resizeCanvasAttachment(c)}
-></canvas>
+<Canvas {initProject} />

@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { Canvas } from '$lib/canvas';
 	import { DecayTime } from '$lib/decay-time';
 	import { addBackground, getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
-	import { imageSize, resizeCanvasAttachment } from '$lib/shared';
 	import audioUrl from '$research/i colori dell_acciaio.mp3?url';
 	import transients from '$research/i colori dell_acciaio.transients.json';
 	import paper from 'paper';
@@ -96,11 +96,4 @@
 	}
 </script>
 
-<canvas
-	width={imageSize.width}
-	height={imageSize.height}
-	{@attach (c) => {
-		initProject(c);
-	}}
-	{@attach (c) => resizeCanvasAttachment(c)}
-></canvas>
+<Canvas {initProject} />
