@@ -99,8 +99,8 @@
 <canvas
 	width={imageSize.width}
 	height={imageSize.height}
-	{@attach (c) => resizeCanvasAttachment(c)}
 	{@attach (c) => {
 		initProject(c);
 	}}
+	{@attach (c) => resizeCanvasAttachment(c)}
 ></canvas>

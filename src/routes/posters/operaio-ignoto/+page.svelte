@@ -111,7 +111,8 @@
 </script>
 
 <canvas
-	class="bg-black"
+	width={imageSize.width}
+	height={imageSize.height}
 	{@attach (c) => {
 		initProject(c);
 	}}

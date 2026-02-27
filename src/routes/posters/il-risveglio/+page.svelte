@@ -97,9 +97,8 @@
 <canvas
 	width={imageSize.width}
 	height={imageSize.height}
-	class="bg-black"
-	{@attach (c) => resizeCanvasAttachment(c)}
 	{@attach (c) => {
 		initProject(c);
 	}}
+	{@attach (c) => resizeCanvasAttachment(c)}
 ></canvas>
