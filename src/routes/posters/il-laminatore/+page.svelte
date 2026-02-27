@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { DecayTime } from '$lib/decay-time';
-	import { getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
+	import { getPathByNameOrThrow, getPathsFromItem, Interpolation, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import { Button } from '$lib/shadcn/ui/button';
 	import audioUrl from '$research/il laminatore.mp3';
@@ -8,6 +8,7 @@
 	import transients from '$research/il laminatore.transients.json';
 	import paper from 'paper';
 
+	import { PartialPath } from './partial-path';
 	import svgPath from './paths.svg?url';
 
 	//
@@ -58,58 +59,17 @@
 			throw new Error('sx or dx not found');
 		}
 
-		// project.activeLayer.addChild(sx);
-		const result = getPartialPath(sx, 0, 0.4);
-		// project.activeLayer.addChild(result);
-		// project.activeLayer.addChild(beforeStart);
-		// project.activeLayer.addChild(copy);
-		// // project.activeLayer.addChild(partial2);
-		// project.activeLayer.addChild(rest);
-
-		// sx.strokeWidth = dx.strokeWidth = 1;
-		// sx.strokeColor = dx.strokeColor;
-
-		// dx.reorient(true, false);
+		sx.strokeWidth = dx.strokeWidth = 1;
+		sx.strokeColor = dx.strokeColor;
+		dx.reorient(true, false);
 		// project.activeLayer.addChild(dx);
 
-		// const interpolation = new Interpolation(sx, dx, 80);
-		// project.activeLayer.addChildren(interpolation.paths);
-
-		// let p = getPartialPath(sx, amount - 0.1, amount);
-		let old = sx;
-		// project.activeLayer.addChild(old);
-		let amount = 0.5;
-		// project.activeLayer.addChild(p);
-
-		const start = new paper.Path.Circle([0, 0], 10);
-		start.fillColor = new paper.Color(1, 0, 0);
-		const end = new paper.Path.Circle([0, 0], 10);
-		end.fillColor = new paper.Color(0, 1, 0);
+		const interpolation = new Interpolation(sx, dx, 40);
+		const partials = interpolation.paths.map((path) => new PartialPath(path));
 
 		project.view.onFrame = () => {
-			const path = old.clone();
-			project.activeLayer.addChild(path);
-			const startLength = path.length * (amount - 0.1);
-			const startPos = path.getPointAt(startLength % path.length);
-			start.position = startPos;
-			const endLength = path.length * amount;
-			const endPos = path.getPointAt(endLength % path.length);
-			end.position = endPos;
-			path.splitAt(endLength);
-			path.splitAt(endLength - startLength);
-			// old = path;
-			path.remove();
-			amount += 0.001;
+			partials.forEach((p) => p.animate(project));
 		};
-	}
-
-	function getPartialPath(path: paper.Path, start: number, end: number) {
-		if (start > end) start = end - 0.1;
-		const result = path.clone();
-		const startLength = path.length * start;
-		result.splitAt(startLength);
-		result.splitAt(path.length * end - startLength);
-		return result;
 	}
 </script>
 
