@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { ArrowRight } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 	import Logo from '$lib/assets/logo.svg';
 	import { imageSize } from '$lib/canvas/utils';
@@ -13,12 +12,12 @@
 </script>
 
 <div class="flex min-h-screen flex-col items-stretch justify-center">
-	<div class="border-b border-b-foreground">
-		<div class="mx-auto w-full max-w-7xl p-4">
+	<div class="border-b border-b-foreground p-4">
+		<div class="max-w-screen-4xl mx-auto w-full">
 			<img src={Logo} alt="Logo" class="h-20 sm:h-32" />
 		</div>
 	</div>
-	<div class="mx-auto inline-grid max-w-7xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+	<div class="max-w-screen-7xl mx-auto inline-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
 		{@render image(AcciaioPreview, "I colori dell'acciaio", '/posters/i-colori-dell-acciaio')}
 		{@render image(LaminatorePreview, 'Il laminatore', '/posters/il-laminatore')}
 		{@render image(RisveglioPreview, 'Il risveglio', '/posters/il-risveglio')}
@@ -27,14 +26,11 @@
 </div>
 
 {#snippet image(image: string, title: string, href: Routes)}
-	<a href={resolve(href)} class="space-y-2 p-4 hover:bg-foreground hover:text-background">
+	<a href={resolve(href)} class="space-y-2 p-2 hover:bg-foreground hover:text-background md:p-4">
 		<img src={image} alt={title} width={imageSize.width} height={imageSize.height} />
-		<div class="flex items-center justify-between">
-			<span>
-				{title}
-			</span>
-			<ArrowRight size={16} />
-		</div>
+		<span>
+			{title}
+		</span>
 	</a>
 {/snippet}
 
