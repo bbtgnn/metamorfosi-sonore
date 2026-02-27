@@ -61,11 +61,11 @@
 		dx.reorient(true, false);
 		// project.activeLayer.addChild(dx);
 
-		const interpolation = new Interpolation(sx, dx, 40);
-		const partials = interpolation.paths.map((path) => new PartialPath(path));
+		const interpolation1 = new Interpolation(sx, dx, 80);
+		const partials1 = interpolation1.paths.map((path) => new PartialPath(path));
 
 		project.view.onFrame = () => {
-			partials.forEach((p) => p.animate(project));
+			partials1.forEach((p) => p.animate(project));
 		};
 	}
 </script>
