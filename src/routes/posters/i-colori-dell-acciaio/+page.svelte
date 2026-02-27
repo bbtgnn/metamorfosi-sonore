@@ -2,11 +2,11 @@
 	import { DecayTime } from '$lib/decay-time';
 	import { getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
-	import { Button } from '$lib/shadcn/ui/button';
 	import audioUrl from '$research/i colori dell_acciaio.mp3?url';
 	import transients from '$research/i colori dell_acciaio.transients.json';
 	import paper from 'paper';
 
+	import { setState } from '../+layout.svelte';
 	import svgPath from './paths.svg?url';
 
 	//
@@ -32,14 +32,22 @@
 			});
 		});
 
+	let project: paper.Project | null = null;
+
 	const player = new PlayerWithEvents({
 		audioUrl,
 		loop: true,
-		events
+		events,
+		onStart: () => {
+			project?.view.play();
+		},
+		onStop: () => {
+			project?.view.pause();
+		}
 	});
 
 	async function initProject(canvas: HTMLCanvasElement) {
-		const project = new paper.Project(canvas);
+		project = new paper.Project(canvas);
 
 		const imported = await loadSvg(project, svgPath);
 		imported.scale(0.4, [0, 0]);
@@ -68,6 +76,13 @@
 				blueClones[i].interpolate(blueInner, blueOuter, (i / cloneCount) * decayBlue.amount);
 			}
 		};
+
+		project.view.pause();
+
+		setState({
+			player,
+			poster: project
+		});
 	}
 </script>
 
@@ -79,6 +94,3 @@
 		initProject(c);
 	}}
 ></canvas>
-
-<Button onclick={() => player.start()}>Play</Button>
-<Button onclick={() => player.stop()}>Stop</Button>

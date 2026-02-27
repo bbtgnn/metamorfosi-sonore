@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { DecayTime } from '$lib/decay-time';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
-	import { Button } from '$lib/shadcn/ui/button';
 	import audioUrl from '$research/operaio ignoto.mp3';
 	import transients from '$research/operaio ignoto.transients.json';
 	import P5 from 'p5';
+
+	import { setState } from '../+layout.svelte';
 
 	//
 
@@ -92,6 +93,10 @@
 		});
 	}
 
+	setState({
+		player
+	});
+
 	function tangent(angleDegrees: number) {
 		const a = (Math.PI * angleDegrees) / 180;
 		return Math.sin(a) / Math.cos(a);
@@ -108,6 +113,3 @@
 		initProject(c);
 	}}
 ></canvas>
-
-<Button onclick={() => player.start()}>Play</Button>
-<Button onclick={() => player.stop()}>Stop</Button>

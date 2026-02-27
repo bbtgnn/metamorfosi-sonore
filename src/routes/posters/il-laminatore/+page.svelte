@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { getPathByNameOrThrow, getPathsFromItem, Interpolation, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
-	import { Button } from '$lib/shadcn/ui/button';
 	import audioUrl from '$research/il laminatore.mp3';
 	import notes from '$research/il laminatore.notes.json';
 	import transients from '$research/il laminatore.transients.json';
 	import paper from 'paper';
 
+	import { setState } from '../+layout.svelte';
 	import { PartialPath } from './partial-path';
 	import svgPath from './paths.svg?url';
 
@@ -92,6 +92,11 @@
 		};
 
 		project.view.pause();
+
+		setState({
+			player,
+			poster: project
+		});
 	}
 </script>
 
@@ -103,6 +108,3 @@
 		initProject(c);
 	}}
 ></canvas>
-
-<Button onclick={() => player.start()}>Play</Button>
-<Button onclick={() => player.stop()}>Stop</Button>

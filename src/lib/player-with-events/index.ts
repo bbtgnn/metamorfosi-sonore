@@ -1,3 +1,4 @@
+import { onDestroy } from 'svelte';
 import * as Tone from 'tone';
 
 //
@@ -25,6 +26,10 @@ export class PlayerWithEvents {
 
 	constructor(private props: Props) {
 		this.player.toDestination();
+
+		onDestroy(() => {
+			this.transport.stop();
+		});
 	}
 
 	async start() {
@@ -35,6 +40,10 @@ export class PlayerWithEvents {
 			this.ready = true;
 		}
 		this.transport.start();
+	}
+
+	pause() {
+		this.transport.pause();
 	}
 
 	stop() {
@@ -54,21 +63,18 @@ export class PlayerWithEvents {
 			transport.loopEnd = duration + 1;
 		}
 
-		transport.schedule((time) => {
-			this.player.start(time);
-		}, 0);
-
-		transport.schedule((time) => {
-			this.player.stop(time);
-		}, duration);
-
-		transport.on('stop', () => {
-			this.player.stop();
-			this.props.onStop?.();
-		});
+		this.player.sync().start(0);
 
 		transport.on('start', () => {
 			this.props.onStart?.();
+		});
+
+		transport.on('stop', () => {
+			this.props.onStop?.();
+		});
+
+		transport.on('pause', () => {
+			this.props.onStop?.();
 		});
 
 		this.props.events.forEach((event) => {
