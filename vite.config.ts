@@ -1,3 +1,4 @@
+import { enhancedImages } from '@sveltejs/enhanced-img';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { playwright } from '@vitest/browser-playwright';
@@ -6,7 +7,7 @@ import { defineConfig } from 'vitest/config';
 //
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
+	plugins: [tailwindcss(), enhancedImages(), sveltekit()],
 	server: { fs: { allow: ['research'] } },
 	test: {
 		expect: { requireAssertions: true },
