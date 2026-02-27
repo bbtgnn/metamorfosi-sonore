@@ -55,9 +55,6 @@
 		const paths = getPathsFromItem(imported);
 		const sx = getPathByNameOrThrow(paths, 'sx');
 		const dx = getPathByNameOrThrow(paths, 'dx');
-		if (!sx || !dx) {
-			throw new Error('sx or dx not found');
-		}
 
 		sx.strokeWidth = dx.strokeWidth = 1;
 		sx.strokeColor = dx.strokeColor;
