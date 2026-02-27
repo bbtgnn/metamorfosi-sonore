@@ -15,6 +15,7 @@
 
 <script lang="ts">
 	import { ArrowLeftIcon, Download, PauseIcon, PlayIcon } from '@lucide/svelte';
+	import { resolve } from '$app/paths';
 	import Button from '$lib/shadcn/ui/button/button.svelte';
 
 	let { children } = $props();
@@ -37,7 +38,7 @@
 
 <div class="relative flex h-screen w-screen items-center justify-center overflow-hidden">
 	<div class="absolute top-2 left-2">
-		<Button variant="ghost" size="icon" href="/"><ArrowLeftIcon /></Button>
+		<Button variant="ghost" size="icon" href={resolve('/')}><ArrowLeftIcon /></Button>
 	</div>
 	<main>
 		{@render children()}
