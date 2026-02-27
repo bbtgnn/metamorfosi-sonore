@@ -56,6 +56,7 @@
 				_.createCanvas(600, 800, 'p2d', canvas);
 				_.angleMode(_.DEGREES);
 				_.ellipseMode(_.CENTER);
+				_.noLoop();
 			};
 
 			_.draw = () => {
