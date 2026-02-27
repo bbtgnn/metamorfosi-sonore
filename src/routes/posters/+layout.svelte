@@ -36,7 +36,7 @@
 	}
 </script>
 
-<div class="relative flex h-screen w-screen items-center justify-center overflow-hidden">
+<div class="relative flex h-dvh w-dvw items-center justify-center overflow-hidden">
 	<div class="absolute top-2 left-2">
 		<Button variant="ghost" size="icon" href={resolve('/')}><ArrowLeftIcon /></Button>
 	</div>
