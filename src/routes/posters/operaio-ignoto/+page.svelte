@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { DecayTime } from '$lib/decay-time';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
+	import { imageSize } from '$lib/shared';
 	import audioUrl from '$research/operaio ignoto.mp3';
 	import transients from '$research/operaio ignoto.transients.json';
 	import P5 from 'p5';
@@ -53,7 +54,7 @@
 			let rotation = 0;
 
 			_.setup = () => {
-				_.createCanvas(600, 800, 'p2d', canvas);
+				_.createCanvas(imageSize.width, imageSize.height, 'p2d', canvas);
 				_.angleMode(_.DEGREES);
 				_.ellipseMode(_.CENTER);
 				_.noLoop();

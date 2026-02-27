@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { addBackground, getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
+	import { imageSize } from '$lib/shared';
 	import audioUrl from '$research/il risveglio.mp3';
 	import notes from '$research/il risveglio.notes.json';
 	import transients from '$research/il risveglio.transients.json';
@@ -94,8 +95,8 @@
 </script>
 
 <canvas
-	width="600"
-	height="800"
+	width={imageSize.width}
+	height={imageSize.height}
 	class="bg-black"
 	{@attach (c) => {
 		initProject(c);

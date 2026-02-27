@@ -2,6 +2,7 @@
 	import { DecayTime } from '$lib/decay-time';
 	import { addBackground, getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
+	import { imageSize } from '$lib/shared';
 	import audioUrl from '$research/i colori dell_acciaio.mp3?url';
 	import transients from '$research/i colori dell_acciaio.transients.json';
 	import paper from 'paper';
@@ -96,8 +97,8 @@
 </script>
 
 <canvas
-	width="600"
-	height="800"
+	width={imageSize.width}
+	height={imageSize.height}
 	{@attach (c) => {
 		initProject(c);
 	}}

@@ -1,14 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import Logo from '$lib/assets/logo.svg';
+	import { imageSize } from '$lib/shared';
 
 	import AcciaioPreview from './posters/i-colori-dell-acciaio/preview.jpg';
 	import LaminatorePreview from './posters/il-laminatore/preview.jpg';
 	import RisveglioPreview from './posters/il-risveglio/preview.jpg';
 	import OperaioIgnotoPreview from './posters/operaio-ignoto/preview.jpg';
-
-	const imageWidth = 700;
-	const imageSize = 920;
 
 	type Routes = Parameters<typeof resolve>[0];
 </script>
@@ -29,7 +27,7 @@
 
 {#snippet image(image: string, title: string, href: Routes)}
 	<a href={resolve(href)} class="space-y-2 p-4 hover:bg-foreground hover:text-background">
-		<img src={image} alt={title} width={imageWidth} height={imageSize} />
+		<img src={image} alt={title} width={imageSize.width} height={imageSize.height} />
 		<span>
 			{title}
 		</span>
