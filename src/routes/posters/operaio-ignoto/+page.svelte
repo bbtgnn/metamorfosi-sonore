@@ -1,19 +1,30 @@
 <script lang="ts">
+	import { DecayTime } from '$lib/decay-time';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import { Button } from '$lib/shadcn/ui/button';
 	import audioUrl from '$research/operaio ignoto.mp3';
 	import transients from '$research/operaio ignoto.transients.json';
-	import paper from 'paper';
+	import P5 from 'p5';
 
 	//
 
-	let project: paper.Project | null = null;
+	const sides = 7;
+	const copies = 7;
+	const scaling = 1.04;
+	const iterations = 23;
+	const radius = 13;
+
+	const minAngleIncrease = 6.42;
+	const maxAngleIncrease = 15;
+
+	let sketch: P5 | null = null;
+	const decay = new DecayTime({ delta: 0.008 });
 
 	const events: PlayerEvent[] = [];
 	transients.forEach((n, index) => {
 		events.push({
 			fn: () => {
-				console.log(n);
+				decay.reset();
 			},
 			timestamp: transients[index].timestamp_s
 		});
@@ -22,51 +33,76 @@
 	const player = new PlayerWithEvents({
 		audioUrl,
 		loop: true,
-		events
+		events,
+		onStart: () => {
+			sketch?.loop();
+		},
+		onStop: () => {
+			sketch?.noLoop();
+		}
 	});
 
 	async function initProject(canvas: HTMLCanvasElement) {
-		project = new paper.Project(canvas);
+		sketch = new P5((_) => {
+			const centerDistance = radius * cosine(360 / sides / 2);
+			const shapeAngle = ((sides - 2) * 180) / sides;
 
-		const center = project.view.bounds.center;
-		const sides = 7;
-		const angle = 360 / sides;
-		const initalLength = 100;
-		const distance = 30;
+			let angleIncrease = 6.42;
+			let angle: number, minAngle: number, minLength: number;
+			let rotation = 0;
 
-		const angleIncrease = 5;
-		const phi = (1 + Math.sqrt(5)) / 2; // golden ratio for spiral r(θ) = a·φ^(θ/360°)
+			_.setup = () => {
+				_.createCanvas(600, 800, 'p2d', canvas);
+				_.angleMode(_.DEGREES);
+				_.ellipseMode(_.CENTER);
+			};
 
-		const startLine = new paper.Path.Line(
-			[center.x - initalLength / 2, center.y + distance],
-			[center.x + initalLength / 2, center.y + distance]
-		);
-		startLine.strokeColor = new paper.Color('white');
+			_.draw = () => {
+				decay.update();
 
-		const group = new paper.Group();
-		group.addChild(startLine);
+				angleIncrease = _.map(decay.amount, 0, 1, minAngleIncrease, maxAngleIncrease);
+				angle = shapeAngle / 2 + angleIncrease;
+				minAngle = 90 + angle;
+				minLength = (radius + centerDistance) * tangent(angle);
 
-		const branchCopies = 28;
-		for (let i = 0; i < branchCopies; i++) {
-			const angleDeg = angleIncrease * i;
-			const radius = distance * Math.pow(phi, angleDeg / 360);
-			const line = startLine.clone();
-			line.translate([0, radius - distance]);
-			line.rotate(angleDeg, center);
-			line.scale((radius / distance) * i * 0.1, line.bounds.center);
-			group.addChild(line);
-		}
+				_.background(0);
+				_.translate(_.width / 2, _.height / 2);
+				_.scale(-1, 1);
+				_.stroke(255);
+				_.rotate(rotation);
 
-		for (let i = 0; i < sides; i++) {
-			const clone = group.clone();
-			clone.rotate(angle * i, center);
-		}
+				for (let s = 0; s < copies; s++) {
+					let currentStroke = 1;
+					_.push();
+					_.translate(-minLength, centerDistance);
+					for (let i = 0; i < iterations; i++) {
+						_.strokeWeight(currentStroke);
+						_.line(0, 0, minLength * 2, 0);
+						_.translate(minLength * 2, 0);
+						_.rotate(-minAngle);
+						_.scale(scaling);
+						currentStroke = currentStroke / scaling;
+					}
+					_.pop();
+					_.rotate(360 / copies);
+				}
+
+				rotation += 0.02;
+			};
+		});
+	}
+
+	function tangent(angleDegrees: number) {
+		const a = (Math.PI * angleDegrees) / 180;
+		return Math.sin(a) / Math.cos(a);
+	}
+
+	function cosine(angleDegrees: number) {
+		return Math.cos((angleDegrees / 180) * Math.PI);
 	}
 </script>
 
 <canvas
-	width="600"
-	height="800"
 	class="bg-black"
 	{@attach (c) => {
 		initProject(c);

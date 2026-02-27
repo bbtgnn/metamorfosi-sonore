@@ -58,8 +58,8 @@ export class PlayerWithEvents {
 			this.player.start(time);
 		}, 0);
 
-		transport.schedule(() => {
-			this.player.stop();
+		transport.schedule((time) => {
+			this.player.stop(time);
 		}, duration);
 
 		transport.on('stop', () => {
