@@ -24,7 +24,7 @@
 	let project: paper.Project | null = null;
 	let linesGroup: paper.Group | null = null;
 
-	const decay = new DecayTime({ delta: 0.004 });
+	const decay = new DecayTime({ decayRatePerSecond: 0.24 });
 
 	const events: PlayerEvent[] = [];
 	transients.forEach((n, index) => {
@@ -57,12 +57,13 @@
 		project.activeLayer.addChild(linesGroup);
 
 		let rotation = 0;
+		const rotationSpeed = 1.2;
 
 		const centerDistance = radius * cosine(360 / sides / 2);
 		const shapeAngle = ((sides - 2) * 180) / sides;
 
-		function drawFrame() {
-			decay.update();
+		function drawFrame(delta: number) {
+			decay.update(delta);
 
 			const angleIncrease = map(decay.amount, 0, 1, minAngleIncrease, maxAngleIncrease);
 			const angle = shapeAngle / 2 + angleIncrease;
@@ -102,11 +103,11 @@
 				}
 			}
 
-			rotation += 0.02;
+			rotation += rotationSpeed * delta;
 		}
 
-		drawFrame();
-		project.view.onFrame = drawFrame;
+		drawFrame(0);
+		project.view.onFrame = (event: { delta: number }) => drawFrame(event.delta);
 		project.view.pause();
 
 		setState({

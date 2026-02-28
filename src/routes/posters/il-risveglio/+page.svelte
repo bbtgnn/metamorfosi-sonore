@@ -83,8 +83,8 @@
 			gears.push(clone);
 		}
 
-		project.view.onFrame = () => {
-			gears.forEach((g) => g.rotate());
+		project.view.onFrame = (event: { delta: number }) => {
+			gears.forEach((g) => g.rotate(event.delta));
 		};
 
 		project.view.pause();

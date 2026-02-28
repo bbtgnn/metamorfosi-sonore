@@ -12,8 +12,8 @@
 
 	//
 
-	const decayRed = new DecayTime({ delta: 0.002 });
-	const decayBlue = new DecayTime({ delta: 0.002 });
+	const decayRed = new DecayTime({ decayRatePerSecond: 0.12 });
+	const decayBlue = new DecayTime({ decayRatePerSecond: 0.12 });
 
 	const events: PlayerEvent[] = [];
 	transients
@@ -89,9 +89,9 @@
 			blueClones[i].interpolate(blueInner, blueOuter, (i / cloneCount) * decayBlue.amount);
 		}
 
-		project.view.onFrame = () => {
-			decayRed.update();
-			decayBlue.update();
+		project.view.onFrame = (event: { delta: number }) => {
+			decayRed.update(event.delta);
+			decayBlue.update(event.delta);
 			for (let i = 0; i < cloneCount; i++) {
 				redClones[i].interpolate(redInner, redOuter, (i / cloneCount) * decayRed.amount);
 				blueClones[i].interpolate(blueInner, blueOuter, (i / cloneCount) * decayBlue.amount);

@@ -1,4 +1,4 @@
-const DEFAULT_WARMUP_FRAMES = 60;
+const DEFAULT_WARMUP_DURATION = 1;
 
 export class PartialPath {
 	private start: number;
@@ -7,19 +7,19 @@ export class PartialPath {
 	private speed: number;
 	private readonly targetStart: number;
 	private readonly targetLength: number;
-	private warmupFramesLeft: number;
-	private readonly warmupFramesTotal: number;
+	private warmupTimeLeft: number;
+	private readonly warmupDuration: number;
 
 	constructor(
 		private path: paper.Path,
-		options: { offset?: number; length?: number; speed?: number; warmupFrames?: number }
+		options: { offset?: number; length?: number; speed?: number; warmupDuration?: number }
 	) {
 		this.targetStart = options.offset ?? 0;
 		this.targetLength = options.length ?? 0.4;
-		this.speed = options.speed ?? 0.001;
-		this.warmupFramesTotal = options.warmupFrames ?? DEFAULT_WARMUP_FRAMES;
-		this.warmupFramesLeft = this.warmupFramesTotal;
-		// Start full, then animate to target over warmup frames
+		this.speed = options.speed ?? 0.06;
+		this.warmupDuration = options.warmupDuration ?? DEFAULT_WARMUP_DURATION;
+		this.warmupTimeLeft = this.warmupDuration;
+		// Start full, then animate to target over warmup
 		this.start = 0;
 		this.length = 1;
 	}
@@ -37,15 +37,15 @@ export class PartialPath {
 	}
 
 	private currentPath: paper.Path | null = null;
-	animate(project: paper.Project) {
-		if (this.warmupFramesLeft > 0) {
-			const t = 1 - this.warmupFramesLeft / this.warmupFramesTotal;
+	animate(project: paper.Project, delta: number) {
+		if (this.warmupTimeLeft > 0) {
+			this.warmupTimeLeft -= delta;
+			const t = 1 - Math.max(0, this.warmupTimeLeft) / this.warmupDuration;
 			// Ease-out: start fast, slow at the end (or use linear t)
 			this.start = this.targetStart * t;
 			this.length = 1 + (this.targetLength - 1) * t;
-			this.warmupFramesLeft--;
 		} else {
-			this.start += this.speed;
+			this.start += this.speed * delta;
 		}
 		this.currentPath?.remove();
 		this.currentPath = this.make(this.start, this.length);

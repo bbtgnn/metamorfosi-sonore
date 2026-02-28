@@ -17,9 +17,9 @@ export class Gear {
 		this.direction = direction;
 	}
 
-	rotate() {
+	rotate(delta: number) {
 		if (!this.path || !this.center) return;
-		this.path.rotate(this.speed * this.direction, this.center);
+		this.path.rotate(this.speed * this.direction * delta * 60, this.center);
 	}
 
 	setSpeed(speed: number) {

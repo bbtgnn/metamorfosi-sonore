@@ -15,9 +15,9 @@
 
 	type Event = 'bzz' | 'clunk' | 'stair';
 	const eventToSpeed: Record<Event, number> = {
-		bzz: 0.001,
-		clunk: 0.0001,
-		stair: 0.002
+		bzz: 0.06,
+		clunk: 0.006,
+		stair: 0.12
 	};
 
 	let partials: PartialPath[] = [];
@@ -79,14 +79,14 @@
 				new PartialPath(path, {
 					offset: Math.random() / 6,
 					length: (Math.random() / 3) * 2,
-					speed: Math.random() / 1000
+					speed: (Math.random() / 1000) * 60
 				})
 		);
 
-		partials.forEach((p) => p.animate(project!));
+		partials.forEach((p) => p.animate(project!, 0));
 
-		project.view.onFrame = () => {
-			partials.forEach((p) => p.animate(project!));
+		project.view.onFrame = (event: { delta: number }) => {
+			partials.forEach((p) => p.animate(project!, event.delta));
 		};
 
 		project.view.pause();
