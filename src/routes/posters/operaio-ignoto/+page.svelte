@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Canvas } from '$lib/canvas';
-	import { imageSize } from '$lib/canvas/utils';
 	import { DecayTime } from '$lib/decay-time';
 	import { loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
@@ -73,7 +72,7 @@
 			linesGroup!.removeChildren();
 
 			const baseMatrix = new paper.Matrix()
-				.translate(imageSize.width / 2, imageSize.height / 2)
+				.translate(paper.view.bounds.width / 2, paper.view.bounds.height / 2)
 				.scale(-1, 1)
 				.rotate(rotation, 0, 0);
 

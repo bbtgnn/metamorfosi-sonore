@@ -3,13 +3,14 @@ export const imageSize = {
 	height: 980
 };
 
-const canvasPadding = 24;
+const horizontalPadding = 24;
+const verticalPadding = 60;
 
 export type ResizeFunction = (size: { width: number; height: number }) => void;
 
 export function resizeCanvas(canvas: HTMLCanvasElement) {
-	const availableWidth = window.innerWidth - canvasPadding * 2;
-	const availableHeight = window.innerHeight - canvasPadding * 2;
+	const availableWidth = window.innerWidth - horizontalPadding * 2;
+	const availableHeight = window.innerHeight - verticalPadding * 2;
 	const scale = Math.min(availableWidth / imageSize.width, availableHeight / imageSize.height, 1);
 	const width = imageSize.width * scale;
 	const height = imageSize.height * scale;

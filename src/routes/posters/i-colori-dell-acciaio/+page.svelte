@@ -103,8 +103,6 @@
 		const textGroup = findByNameAndClass(project, 'testo', paper.Group);
 		textGroup.bringToFront();
 
-		console.log(project.activeLayer.children);
-
 		setState({
 			player,
 			poster: project

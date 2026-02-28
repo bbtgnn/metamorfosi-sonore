@@ -14,9 +14,12 @@
 </script>
 
 <script lang="ts">
-	import { ArrowLeftIcon, Download, PauseIcon, PlayIcon } from '@lucide/svelte';
+	import { Download, PauseIcon, PlayIcon } from '@lucide/svelte';
+	import {} from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { NavigationHistory } from '$lib';
 	import Button from '$lib/shadcn/ui/button/button.svelte';
+	import { fly } from 'svelte/transition';
 
 	let { children } = $props();
 
@@ -38,9 +41,9 @@
 
 <div class="relative flex h-dvh w-dvw items-center justify-center overflow-hidden">
 	<div class="absolute top-2 left-2">
-		<Button variant="ghost" size="icon" href={resolve('/')}><ArrowLeftIcon /></Button>
+		<NavigationHistory.BackButton variant="ghost" size="icon" href={resolve('/')} />
 	</div>
-	<main>
+	<main in:fly={{ duration: 1000, y: 50 }}>
 		{@render children()}
 	</main>
 	<div class="absolute right-2 bottom-2">

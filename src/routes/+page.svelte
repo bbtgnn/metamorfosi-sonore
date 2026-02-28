@@ -4,6 +4,7 @@
 	import { ArrowRight } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 	import Logo from '$lib/assets/logo.svg';
+	import { fly } from 'svelte/transition';
 
 	import AcciaioPreview from './posters/i-colori-dell-acciaio/preview.jpg?enhanced';
 	import LaminatorePreview from './posters/il-laminatore/preview.jpg?enhanced';
@@ -15,7 +16,7 @@
 
 <div class="max-w-screen-7xl mx-auto flex min-h-screen flex-col items-stretch justify-center">
 	<div class="w-full border-b border-b-foreground">
-		<div class="mx-auto max-w-7xl p-4">
+		<div class="mx-auto max-w-7xl px-7 py-4">
 			<img src={Logo} alt="Logo" class="h-20 sm:h-32" />
 		</div>
 	</div>
@@ -30,7 +31,11 @@
 </div>
 
 {#snippet image(image: Picture, title: string, href: Routes)}
-	<a href={resolve(href)} class="flex flex-col gap-2 p-4 hover:bg-foreground hover:text-background">
+	<a
+		href={resolve(href)}
+		class="flex flex-col gap-2 p-7 hover:bg-foreground hover:text-background"
+		in:fly={{ duration: 700, y: 50 }}
+	>
 		<enhanced:img src={image} alt={title} class="block bg-gray-500" />
 		<div class="flex items-center justify-between">
 			<p>{title}</p>
