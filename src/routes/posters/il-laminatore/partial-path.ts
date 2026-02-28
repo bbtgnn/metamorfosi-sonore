@@ -3,6 +3,7 @@ const DEFAULT_WARMUP_FRAMES = 60;
 export class PartialPath {
 	private start: number;
 	private length: number;
+
 	private speed: number;
 	private readonly targetStart: number;
 	private readonly targetLength: number;
