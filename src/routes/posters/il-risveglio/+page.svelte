@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Canvas } from '$lib/canvas';
 	import { addBackground, findByNameAndClass, loadSvg } from '$lib/paper-utils';
-	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
+	import { PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/il risveglio.mp3';
 	import notes from '$research/il risveglio.notes.json';
 	import transients from '$research/il risveglio.transients.json';
@@ -18,26 +18,20 @@
 	const gears: Gear[] = [];
 	const speeds = [600, 400, 60, 6, 0]; // degrees per second
 
-	const events: PlayerEvent[] = [];
-	notes.forEach((n, index) => {
-		events.push({
-			fn: () => {
-				gears.forEach((g) => g.setSpeed(speeds[n.transient_index - 1]));
-			},
-			timestamp: transients[index].timestamp_s
-		});
-	});
-
 	const player = new PlayerWithEvents({
 		audioUrl,
 		loop: true,
-		events,
 		onStart: () => {
 			project?.view.play();
 		},
 		onStop: () => {
 			project?.view.pause();
 		}
+	});
+	notes.forEach((n, index) => {
+		player.schedule(transients[index].timestamp_s, () => {
+			gears.forEach((g) => g.setSpeed(speeds[n.transient_index - 1]));
+		});
 	});
 
 	async function initProject(canvas: HTMLCanvasElement) {

@@ -2,7 +2,7 @@
 	import { Canvas } from '$lib/canvas';
 	import { DecayTime } from '$lib/decay-time';
 	import { loadSvg } from '$lib/paper-utils';
-	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
+	import { PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/operaio ignoto.mp3';
 	import transients from '$research/operaio ignoto.transients.json';
 	import paper from 'paper';
@@ -26,26 +26,18 @@
 
 	const decay = new DecayTime({ decayRatePerSecond: 0.24 });
 
-	const events: PlayerEvent[] = [];
-	transients.forEach((n, index) => {
-		events.push({
-			fn: () => {
-				decay.reset();
-			},
-			timestamp: transients[index].timestamp_s
-		});
-	});
-
 	const player = new PlayerWithEvents({
 		audioUrl,
 		loop: true,
-		events,
 		onStart: () => {
 			project?.view.play();
 		},
 		onStop: () => {
 			project?.view.pause();
 		}
+	});
+	transients.forEach((_, index) => {
+		player.schedule(transients[index].timestamp_s, () => decay.reset());
 	});
 
 	async function initProject(canvas: HTMLCanvasElement) {

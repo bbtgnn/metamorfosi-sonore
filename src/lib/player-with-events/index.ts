@@ -3,15 +3,9 @@ import * as Tone from 'tone';
 
 //
 
-export type PlayerEvent = {
-	timestamp: number;
-	fn: () => void;
-};
-
 type Props = {
 	loop?: boolean;
 	audioUrl: string;
-	events: PlayerEvent[];
 	onStart?: () => void;
 	onStop?: () => void;
 };
@@ -19,6 +13,7 @@ type Props = {
 export class PlayerWithEvents {
 	private player = new Tone.Player();
 	private ready = false;
+	private pending: { timestamp: number; fn: () => void }[] = [];
 
 	get transport() {
 		return Tone.getTransport();
@@ -31,6 +26,15 @@ export class PlayerWithEvents {
 			this.transport.stop();
 			this.transport.cancel();
 		});
+	}
+
+	/** Schedule a callback at a given transport time (seconds). */
+	schedule(timestamp: number, fn: () => void) {
+		if (this.ready) {
+			this.transport.schedule(fn, timestamp);
+		} else {
+			this.pending.push({ timestamp, fn });
+		}
 	}
 
 	async start() {
@@ -78,8 +82,9 @@ export class PlayerWithEvents {
 			this.props.onStop?.();
 		});
 
-		this.props.events.forEach((event) => {
+		this.pending.forEach((event) => {
 			transport.schedule(event.fn, event.timestamp);
 		});
+		this.pending = [];
 	}
 }

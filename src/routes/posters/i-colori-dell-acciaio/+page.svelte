@@ -2,7 +2,7 @@
 	import { Canvas } from '$lib/canvas';
 	import { DecayTime } from '$lib/decay-time';
 	import { findByNameAndClass, loadSvg } from '$lib/paper-utils';
-	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
+	import { PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/i colori dell_acciaio.mp3?url';
 	import transients from '$research/i colori dell_acciaio.transients.json';
 	import paper from 'paper';
@@ -15,30 +15,11 @@
 	const decayRed = new DecayTime({ decayRatePerSecond: 0.2 });
 	const decayBlue = new DecayTime({ decayRatePerSecond: 0.2 });
 
-	const events: PlayerEvent[] = [];
-	transients
-		.filter((t) => t.rolloff_band === 'mid')
-		.forEach((t) => {
-			events.push({
-				fn: () => decayBlue.reset(),
-				timestamp: t.timestamp_s
-			});
-		});
-	transients
-		.filter((t) => t.rolloff_band === 'low' || t.rolloff_band === 'high')
-		.forEach((t) => {
-			events.push({
-				fn: () => decayRed.reset(),
-				timestamp: t.timestamp_s
-			});
-		});
-
 	let project: paper.Project | null = null;
 
 	const player = new PlayerWithEvents({
 		audioUrl,
 		loop: true,
-		events,
 		onStart: () => {
 			project?.view.play();
 		},
@@ -46,6 +27,12 @@
 			project?.view.pause();
 		}
 	});
+	transients
+		.filter((t) => t.rolloff_band === 'mid')
+		.forEach((t) => player.schedule(t.timestamp_s, () => decayBlue.reset()));
+	transients
+		.filter((t) => t.rolloff_band === 'low' || t.rolloff_band === 'high')
+		.forEach((t) => player.schedule(t.timestamp_s, () => decayRed.reset()));
 
 	async function initProject(canvas: HTMLCanvasElement) {
 		project = new paper.Project(canvas);

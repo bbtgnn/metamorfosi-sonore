@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Canvas } from '$lib/canvas';
 	import { findByNameAndClass, Interpolation, loadSvg } from '$lib/paper-utils';
-	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
+	import { PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/il laminatore.mp3';
 	import notes from '$research/il laminatore.notes.json';
 	import transients from '$research/il laminatore.transients.json';
@@ -23,8 +23,17 @@
 	let partials: PartialPath[] = [];
 
 	let project: paper.Project | null = null;
-	const events: PlayerEvent[] = [];
 
+	const player = new PlayerWithEvents({
+		audioUrl,
+		loop: true,
+		onStart: () => {
+			project?.view.play();
+		},
+		onStop: () => {
+			project?.view.pause();
+		}
+	});
 	let lastEvent: Event | null = null;
 	notes.forEach((n) => {
 		const currentEvent = n.event as Event;
@@ -38,25 +47,10 @@
 		}
 		const transient = transients.find((t) => t.transient_index == n.transient_index);
 		if (!transient) throw new Error(`Transient not found for note ${n.event}`);
-		events.push({
-			fn: () => {
-				partials.forEach((p) => p.setSpeed(baseSpeed));
-			},
-			timestamp: transient.timestamp_s
+		player.schedule(transient.timestamp_s, () => {
+			partials.forEach((p) => p.setSpeed(baseSpeed));
 		});
 		lastEvent = currentEvent;
-	});
-
-	const player = new PlayerWithEvents({
-		audioUrl,
-		loop: true,
-		events,
-		onStart: () => {
-			project?.view.play();
-		},
-		onStop: () => {
-			project?.view.pause();
-		}
 	});
 
 	async function initProject(canvas: HTMLCanvasElement) {
