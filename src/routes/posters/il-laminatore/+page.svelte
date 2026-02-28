@@ -9,7 +9,7 @@
 
 	import { setState } from '../+layout.svelte';
 	import { PartialPath } from './partial-path';
-	import svgPath from './paths.svg?url';
+	import poster from './poster.svg?url';
 
 	//
 
@@ -62,18 +62,15 @@
 	async function initProject(canvas: HTMLCanvasElement) {
 		project = new paper.Project(canvas);
 
-		const imported = await loadSvg(project, svgPath);
-		imported.scale(0.4, [0, 0]);
-
-		// project.activeLayer.addChild(imported);
+		const imported = await loadSvg(project, poster);
+		project.activeLayer.addChild(imported);
 
 		const paths = getPathsFromItem(imported);
 		const sx = getPathByNameOrThrow(paths, 'sx');
 		const dx = getPathByNameOrThrow(paths, 'dx');
-
-		sx.strokeWidth = dx.strokeWidth = 1;
-		sx.strokeColor = dx.strokeColor;
 		dx.reorient(true, false);
+		sx.remove();
+		dx.remove();
 
 		const interpolation = new Interpolation(sx, dx, 80);
 

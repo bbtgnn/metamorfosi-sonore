@@ -1,20 +1,28 @@
 export const imageSize = {
 	width: 700,
-	height: 920
+	height: 980
 };
 
 const canvasPadding = 24;
+
+export type ResizeFunction = (size: { width: number; height: number }) => void;
 
 export function resizeCanvas(canvas: HTMLCanvasElement) {
 	const availableWidth = window.innerWidth - canvasPadding * 2;
 	const availableHeight = window.innerHeight - canvasPadding * 2;
 	const scale = Math.min(availableWidth / imageSize.width, availableHeight / imageSize.height, 1);
-	canvas.style.width = `${imageSize.width * scale}px`;
-	canvas.style.height = `${imageSize.height * scale}px`;
+	const width = imageSize.width * scale;
+	const height = imageSize.height * scale;
+	canvas.style.width = `${width}px`;
+	canvas.style.height = `${height}px`;
+	return { width, height };
 }
 
-export function resizeCanvasAttachment(canvas: HTMLCanvasElement) {
-	const handler = () => resizeCanvas(canvas);
+export function resizeCanvasAttachment(canvas: HTMLCanvasElement, onResize?: ResizeFunction) {
+	const handler = () => {
+		const size = resizeCanvas(canvas);
+		onResize?.(size);
+	};
 	handler();
 	window.addEventListener('resize', handler);
 	return () => window.removeEventListener('resize', handler);

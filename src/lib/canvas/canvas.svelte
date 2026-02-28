@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { imageSize, resizeCanvasAttachment } from './utils';
+	import { imageSize, resizeCanvasAttachment, type ResizeFunction } from './utils';
 
 	type Props = {
 		initProject: (canvas: HTMLCanvasElement) => void;
+		onResize?: ResizeFunction;
 	};
 
-	let { initProject }: Props = $props();
+	let { initProject, onResize }: Props = $props();
 </script>
 
 <canvas
@@ -14,7 +15,6 @@
 	{@attach (c) => {
 		initProject(c);
 	}}
-	{@attach (c) => resizeCanvasAttachment(c)}
-	data-paper-resize="true"
+	{@attach (c) => resizeCanvasAttachment(c, onResize)}
 	data-paper-keepalive="true"
 ></canvas>
