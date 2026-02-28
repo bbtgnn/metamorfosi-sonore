@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Canvas } from '$lib/canvas';
-	import { addBackground, getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
+	import { addBackground, findByNameAndClass, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/il risveglio.mp3';
 	import notes from '$research/il risveglio.notes.json';
@@ -9,20 +9,19 @@
 
 	import { setState } from '../+layout.svelte';
 	import { Gear } from './gear';
-	import svgPath from './paths.svg?url';
+	import poster from './poster.svg?url';
 
 	//
 
 	let project: paper.Project | null = null;
 
 	const gears: Gear[] = [];
-	const speeds = [10, 5, 1, 0.1, 0];
+	const speeds = [10, 3, 1, 0.1, 0];
 
 	const events: PlayerEvent[] = [];
 	notes.forEach((n, index) => {
 		events.push({
 			fn: () => {
-				console.log(n);
 				gears.forEach((g) => g.setSpeed(speeds[n.transient_index - 1]));
 			},
 			timestamp: transients[index].timestamp_s
@@ -45,27 +44,30 @@
 		project = new paper.Project(canvas);
 		addBackground(project, 'black');
 
-		const imported = await loadSvg(project, svgPath);
-		imported.scale(0.4, [0, 0]);
+		const imported = await loadSvg(project, poster);
+		project.activeLayer.addChild(imported);
 
-		const paths = getPathsFromItem(imported);
+		const top = findByNameAndClass(project, 'top', paper.Path);
+		const topCenter = findByNameAndClass(project, 'top-center', paper.Path);
+		const bottom = findByNameAndClass(project, 'bot', paper.Path);
+		const bottomCenter = findByNameAndClass(project, 'bot-center', paper.Path);
 
-		const topGear = new Gear(
-			getPathByNameOrThrow(paths, 'top'),
-			getPathByNameOrThrow(paths, 'top-center').bounds.center
-		);
-		const bottomGear = new Gear(
-			getPathByNameOrThrow(paths, 'bot'),
-			getPathByNameOrThrow(paths, 'bot-center').bounds.center
-		);
+		top.strokeWidth = 2;
+		bottom.strokeWidth = 2;
+
+		const topGear = new Gear(top, topCenter.bounds.center);
+		const bottomGear = new Gear(bottom, bottomCenter.bounds.center);
 		bottomGear.setDirection(-1);
+
+		topCenter.remove();
+		bottomCenter.remove();
 
 		topGear.addToProject(project);
 		bottomGear.addToProject(project);
 		gears.push(topGear, bottomGear);
 
 		const clones = 15;
-		const tx = 10;
+		const tx = 7;
 
 		for (let i = 0; i < clones; i++) {
 			const clone = bottomGear.clone();
