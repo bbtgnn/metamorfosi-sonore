@@ -12,8 +12,8 @@
 
 	//
 
-	const decayRed = new DecayTime({ decayRatePerSecond: 0.12 });
-	const decayBlue = new DecayTime({ decayRatePerSecond: 0.12 });
+	const decayRed = new DecayTime({ decayRatePerSecond: 0.2 });
+	const decayBlue = new DecayTime({ decayRatePerSecond: 0.2 });
 
 	const events: PlayerEvent[] = [];
 	transients

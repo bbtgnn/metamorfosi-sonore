@@ -16,7 +16,7 @@
 	let project: paper.Project | null = null;
 
 	const gears: Gear[] = [];
-	const speeds = [10, 3, 1, 0.1, 0];
+	const speeds = [600, 400, 60, 6, 0]; // degrees per second
 
 	const events: PlayerEvent[] = [];
 	notes.forEach((n, index) => {
