@@ -70,6 +70,7 @@
 		dx.reorient(true, false);
 		sx.remove();
 		dx.remove();
+		sx.strokeWidth = dx.strokeWidth = 1.3;
 
 		const interpolation = new Interpolation(sx, dx, 80);
 
