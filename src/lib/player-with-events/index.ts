@@ -29,6 +29,7 @@ export class PlayerWithEvents {
 
 		onDestroy(() => {
 			this.transport.stop();
+			this.transport.cancel();
 		});
 	}
 

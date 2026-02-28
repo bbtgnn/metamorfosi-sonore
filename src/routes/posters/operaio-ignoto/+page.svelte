@@ -16,7 +16,7 @@
 	const copies = 7;
 	const scaling = 1.04;
 	const iterations = 30;
-	const radius = 20;
+	const radius = 19;
 
 	const minAngleIncrease = 6.42;
 	const maxAngleIncrease = 15;
@@ -84,7 +84,7 @@
 			for (let s = 0; s < copies; s++) {
 				const copyMatrix = baseMatrix
 					.clone()
-					.rotate((360 / copies) * s, 0, 0)
+					.rotate((360 / copies) * s + 360 / copies / 2, 0, 0)
 					.translate(-minLength, centerDistance);
 
 				let lineMatrix = copyMatrix.clone();
@@ -95,7 +95,7 @@
 
 					const line = new paper.Path.Line(start, end);
 					line.strokeColor = new paper.Color('white');
-					line.strokeWidth = 1;
+					line.strokeWidth = 1.5;
 					linesGroup!.addChild(line);
 
 					lineMatrix = lineMatrix.clone().append(iterMatrix);
