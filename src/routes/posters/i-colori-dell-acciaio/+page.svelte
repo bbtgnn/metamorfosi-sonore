@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { Canvas } from '$lib/canvas';
 	import { DecayTime } from '$lib/decay-time';
-	import { addBackground, getPathByNameOrThrow, getPathsFromItem, loadSvg } from '$lib/paper-utils';
+	import { findByNameAndClass, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/i colori dell_acciaio.mp3?url';
 	import transients from '$research/i colori dell_acciaio.transients.json';
 	import paper from 'paper';
 
 	import { setState } from '../+layout.svelte';
-	import svgPath from './paths.svg?url';
+	import poster from './poster.svg?url';
 
 	//
 
@@ -49,16 +49,20 @@
 
 	async function initProject(canvas: HTMLCanvasElement) {
 		project = new paper.Project(canvas);
-		addBackground(project, 'black');
 
-		const imported = await loadSvg(project, svgPath);
-		imported.scale(0.4, [0, 0]);
+		const imported = await loadSvg(project, poster);
+		if (imported instanceof paper.Group) {
+			for (const child of imported.children) {
+				if (child.name == 'i-colori-dell-acciaio' && child instanceof paper.Group) {
+					project.activeLayer.addChildren(child.children);
+				}
+			}
+		}
 
-		const paths = getPathsFromItem(imported);
-		const redInner = getPathByNameOrThrow(paths, 'red-inner');
-		const redOuter = getPathByNameOrThrow(paths, 'red-outer');
-		const blueInner = getPathByNameOrThrow(paths, 'blue-inner');
-		const blueOuter = getPathByNameOrThrow(paths, 'blue-outer');
+		const redInner = findByNameAndClass(project, 'red-inner', paper.Path);
+		const redOuter = findByNameAndClass(project, 'red-outer', paper.Path);
+		const blueInner = findByNameAndClass(project, 'blue-inner', paper.Path);
+		const blueOuter = findByNameAndClass(project, 'blue-outer', paper.Path);
 
 		const cloneCount = 80;
 		const redClones: paper.Path[] = [];
@@ -67,8 +71,15 @@
 			redClones.push(redInner.clone());
 			blueClones.push(blueInner.clone());
 		}
-		project.activeLayer.addChildren(redClones);
-		project.activeLayer.addChildren(blueClones);
+		const shapesGroup = new paper.Group();
+		shapesGroup.addChildren(redClones);
+		shapesGroup.addChildren(blueClones);
+		project.activeLayer.addChild(shapesGroup);
+
+		redInner.remove();
+		redOuter.remove();
+		blueInner.remove();
+		blueOuter.remove();
 
 		// draw first frame with max decay before starting animation
 		decayRed.reset();
@@ -88,6 +99,11 @@
 		};
 
 		project.view.pause();
+
+		const textGroup = findByNameAndClass(project, 'testo', paper.Group);
+		textGroup.bringToFront();
+
+		console.log(project.activeLayer.children);
 
 		setState({
 			player,

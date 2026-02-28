@@ -1,5 +1,10 @@
 import paper from 'paper';
 
+//
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Constructor<T> = new (...args: any[]) => T;
+
 export function addBackground(project: paper.Project, color: string) {
 	const background = new paper.Path.Rectangle({
 		size: project.view.size,
@@ -37,6 +42,19 @@ export function getPathByNameOrThrow(paths: paper.Path[], name: string): paper.P
 		throw new Error(`Path with name ${name} not found`);
 	}
 	return path;
+}
+
+interface Searchable {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+	getItem(options: object | Function): paper.Item;
+}
+
+export function findByNameAndClass<T extends paper.Item>(
+	scope: Searchable,
+	name: string,
+	constructor: Constructor<T>
+): T {
+	return scope.getItem({ name, class: constructor }) as T;
 }
 
 export async function loadSvg(project: paper.Project, svgPath: string): Promise<paper.Item> {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Canvas } from '$lib/canvas';
-	import { getPathByNameOrThrow, getPathsFromItem, Interpolation, loadSvg } from '$lib/paper-utils';
+	import { findByNameAndClass, Interpolation, loadSvg } from '$lib/paper-utils';
 	import { type PlayerEvent, PlayerWithEvents } from '$lib/player-with-events';
 	import audioUrl from '$research/il laminatore.mp3';
 	import notes from '$research/il laminatore.notes.json';
@@ -65,9 +65,8 @@
 		const imported = await loadSvg(project, poster);
 		project.activeLayer.addChild(imported);
 
-		const paths = getPathsFromItem(imported);
-		const sx = getPathByNameOrThrow(paths, 'sx');
-		const dx = getPathByNameOrThrow(paths, 'dx');
+		const sx = findByNameAndClass(project, 'sx', paper.Path);
+		const dx = findByNameAndClass(project, 'dx', paper.Path);
 		dx.reorient(true, false);
 		sx.remove();
 		dx.remove();
